@@ -3,7 +3,7 @@ from datetime import date
 import pandas as pd
 import altair as alt
 
-from Portafolio import (
+from portfolio_utils import (
     get_price_data,
     calc_portfolio_metrics,
     generate_text_report,
