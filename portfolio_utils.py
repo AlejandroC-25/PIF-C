@@ -199,6 +199,24 @@ def calc_portfolio_metrics(
     excess_return = mean_annual - risk_free
     sharpe = excess_return / vol_annual if vol_annual > 0 else np.nan
 
+     # Sharpe ratio
+    excess_return = mean_annual - risk_free
+    sharpe = excess_return / vol_annual if vol_annual > 0 else np.nan
+
+        # Matriz de covarianzas anual entre activos
+    cov_daily = returns.cov()
+    cov_annual = cov_daily * trading_days
+
+    # Beta del portafolio vs benchmark (si hay)
+    beta = _calc_beta(port_returns, benchmark_prices)
+
+    # Treynor ratio: (Exceso de rendimiento) / beta
+    if beta is None or np.isnan(beta) or beta == 0:
+        treynor = np.nan
+    else:
+        treynor = excess_return / beta
+
+
     # Curva de valor del portafolio (iniciando en 1)
     port_value = (1 + port_returns).cumprod()
 
@@ -244,6 +262,8 @@ def calc_portfolio_metrics(
         "vol_annual": vol_annual,
         "vol_daily": vol_daily,
         "sharpe": sharpe,
+        "treynor": treynor,
+        "cov_matrix": cov_annual,
         "max_drawdown": max_drawdown,
         "var_95": var_95,
         "cvar_95": cvar_95,

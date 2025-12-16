@@ -221,6 +221,12 @@ if analyze_button:
                                     f"Beta vs {bench_ticker if bench_ticker else 'benchmark'}",
                                     f"{beta_val:.2f}",
                                 )
+                                treynor_val = metrics.get("treynor")
+                            if treynor_val is not None and not pd.isna(treynor_val):
+                                st.metric(
+                                    "Treynor ratio",
+                                    f"{treynor_val:.2f}",
+                                )
 
                         # --------------------------------------------------
                         # 4. Tabla de composición
@@ -233,6 +239,16 @@ if analyze_button:
                                 "Vol_Anual": "{:.2%}",
                             })
                         )
+                        st.subheader("Matriz de covarianza anual entre activos")
+
+                        cov_matrix = metrics.get("cov_matrix")
+                        if cov_matrix is not None:
+                            st.dataframe(
+                                cov_matrix.style.format("{:.6f}")
+                        )
+                        else:
+                            st.info("No se pudo calcular la matriz de covarianza.")
+
 
                         # --------------------------------------------------
                         # 5. Gráficas históricas
