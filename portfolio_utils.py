@@ -247,6 +247,31 @@ def calc_portfolio_metrics(
     # Beta
     beta = _calc_beta(port_returns, benchmark_prices)
 
+        # Alpha anual (CAPM) vs benchmark:
+    # alpha = Rp - [ rf + beta * (Rm - rf) ]
+    benchmark_mean_annual = np.nan
+    if benchmark_prices is not None and not isinstance(benchmark_prices, bool):
+        try:
+            if isinstance(benchmark_prices, pd.DataFrame):
+                bench_series = benchmark_prices.iloc[:, 0]
+            else:
+                bench_series = benchmark_prices
+            bench_ret = bench_series.pct_change().dropna()
+            bench_mean_daily = bench_ret.mean()
+            benchmark_mean_annual = bench_mean_daily * trading_days
+        except Exception:
+            benchmark_mean_annual = np.nan
+
+    if (
+        beta is None
+        or np.isnan(beta)
+        or np.isnan(benchmark_mean_annual)
+    ):
+        alpha = np.nan
+    else:
+        alpha = mean_annual - (risk_free + beta * (benchmark_mean_annual - risk_free))
+
+
     # Monte Carlo
     mc_results = _monte_carlo_bootstrap(port_returns, mc_sims, mc_horizon_days)
 
@@ -263,6 +288,7 @@ def calc_portfolio_metrics(
         "vol_daily": vol_daily,
         "sharpe": sharpe,
         "treynor": treynor,
+        "alpha": alpha,
         "cov_matrix": cov_annual,
         "max_drawdown": max_drawdown,
         "var_95": var_95,
@@ -289,6 +315,7 @@ def generate_text_report(metrics, risk_free: float = 0.04):
     var_95 = metrics["var_95"]
     cvar_95 = metrics["cvar_95"]
     beta = metrics.get("beta", np.nan)
+    alpha = metrics.get("alpha", np.nan)
 
     asset_df = metrics["asset_metrics"].copy()
     asset_df = asset_df.sort_values("Peso", ascending=False)
@@ -304,6 +331,9 @@ def generate_text_report(metrics, risk_free: float = 0.04):
     lines.append(f"Sharpe ratio (rf = {risk_free*100:.2f}%):            {sharpe:.2f}")
     if not np.isnan(beta):
         lines.append(f"Beta versus benchmark:                    {beta:.2f}")
+    if not np.isnan(alpha):
+        lines.append(f"Alpha anual (CAPM) vs benchmark:         {alpha*100:.2f}%")
+    lines.append("")
     lines.append("")
     lines.append(f"Máximo drawdown histórico:               {max_dd*100:.2f}%")
     lines.append(f"VaR 95% diario (histórico):              {var_95*100:.2f}%")

@@ -227,6 +227,12 @@ if analyze_button:
                                     "Treynor ratio",
                                     f"{treynor_val:.2f}",
                                 )
+                                alpha_val = metrics.get("alpha")
+                            if alpha_val is not None and not pd.isna(alpha_val):
+                                st.metric(
+                                    "Alpha anual (CAPM)",
+                                    f"{alpha_val*100:.2f} %",
+                                )
 
                         # --------------------------------------------------
                         # 4. Tabla de composición
