@@ -200,6 +200,19 @@ if analyze_button:
                                 "Sharpe ratio",
                                 f"{metrics['sharpe']:.2f}",
                             )
+                            treynor_val = metrics.get("treynor")
+                            if treynor_val is not None and not pd.isna(treynor_val):
+                                st.metric(
+                                    "Treynor ratio",
+                                    f"{treynor_val:.2f}",
+                                )
+                                alpha_val = metrics.get("alpha")
+                            if alpha_val is not None and not pd.isna(alpha_val):
+                                st.metric(
+                                    "Alpha anual (CAPM)",
+                                    f"{alpha_val*100:.2f} %",
+                                )
+
 
                         with col2:
                             st.subheader("Riesgo")
@@ -221,18 +234,7 @@ if analyze_button:
                                     f"Beta vs {bench_ticker if bench_ticker else 'benchmark'}",
                                     f"{beta_val:.2f}",
                                 )
-                                treynor_val = metrics.get("treynor")
-                            if treynor_val is not None and not pd.isna(treynor_val):
-                                st.metric(
-                                    "Treynor ratio",
-                                    f"{treynor_val:.2f}",
-                                )
-                                alpha_val = metrics.get("alpha")
-                            if alpha_val is not None and not pd.isna(alpha_val):
-                                st.metric(
-                                    "Alpha anual (CAPM)",
-                                    f"{alpha_val*100:.2f} %",
-                                )
+                               
 
                         # --------------------------------------------------
                         # 4. Tabla de composición
